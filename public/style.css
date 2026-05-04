@@ -229,7 +229,7 @@ main {
     position: relative;
     background: #161210;
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Se l'immagine è molto alta, parte dall'alto invece che essere centrata/tagliata */
     justify-content: center;
     overflow: hidden;
 }
@@ -246,7 +246,7 @@ main {
     width: 100%;
     height: 100%;
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Allineato in alto per evitare tagli quando scendi */
     justify-content: center;
     padding: 3.5rem;
     position: relative;
@@ -255,8 +255,8 @@ main {
 
 .hero-immagine-wrap img {
     max-width: 100%;
-    max-height: calc(100vh - 69px - 7rem);
-    width: auto;
+    width: 100%; /* Occupa tutta la colonna disponibile */
+    max-height: none; /* Rimosso il limite all'altezza per permettere lo scroll */
     height: auto;
     display: block;
     box-shadow: 0 40px 100px rgba(0, 0, 0, 0.65);
@@ -596,15 +596,17 @@ main {
     }
 
     .hero-lato-immagine {
-        min-height: 60vw;
+        min-height: unset;
     }
 
     .hero-immagine-wrap {
-        padding: 2.5rem;
+        padding: 2rem;
     }
 
     .hero-immagine-wrap img {
-        max-height: 60vw;
+        max-height: none; /* Rimuove il limite di altezza per far leggere il testo */
+        width: 100%; /* Sfrutta tutta la larghezza disponibile */
+        height: auto;
     }
 
     .bacheca-header {
@@ -632,6 +634,10 @@ main {
 
     .hero-lato-testo {
         padding: 2.5rem 1.5rem 2rem;
+    }
+
+    .hero-immagine-wrap {
+        padding: 1rem; /* Meno padding sui telefoni per massimizzare lo spazio dell'immagine */
     }
 
     .bacheca-header {
