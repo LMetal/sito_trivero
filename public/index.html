@@ -4,96 +4,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimo Aggiornamento</title>
-    <!-- Font minimale sans-serif -->
+    <title>Avvisi della Settimana</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="index-page">
+<body>
 
-    <!-- Menu minimalista -->
-    <nav>
-        <a href="index.html" class="active">Home</a>
-        <a href="bacheca.html">Archivio</a>
-    </nav>
+    <header class="site-header">
+        <div class="header-brand">
+            <div class="header-croce"></div>
+            <div class="header-nome">
+                Parrocchia di …
+                <span>Diocesi di …</span>
+            </div>
+        </div>
+        <nav class="site-nav">
+            <a href="index.html" class="active">Avvisi</a>
+            <a href="bacheca.html">Bacheca</a>
+        </nav>
+    </header>
 
-    <!-- Hero Section & Contenitore Immagine -->
     <main>
-        <h1>Ultimo Aggiornamento</h1>
+        <div class="hero-avviso">
 
-        <div class="image-wrapper" id="imageContainer">
-            <div class="loader" id="loader"></div>
+            <!-- LATO SINISTRO: testo -->
+            <div class="hero-lato-testo">
+                <p class="kicker">Settimana in corso</p>
+                <h1 class="hero-titolo" id="titoloPagina">Avvisi della Settimana</h1>
+                <p class="hero-data" id="sottotitoloPagina">Caricamento in corso…</p>
+                <a href="#" class="btn-primario" id="btnScarica" style="display:none;" download>
+                    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Scarica il foglio
+                </a>
+            </div>
+
+            <!-- LATO DESTRO: immagine -->
+            <div class="hero-lato-immagine">
+                <div class="hero-immagine-wrap" id="contenitoreImmagine">
+                    <div class="loader-area" id="loaderArea">
+                        <div class="spinner"></div>
+                        <span>Caricamento…</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
-    <!-- Logica JavaScript per Fetch -->
+    <footer class="site-footer">
+        <div class="footer-brand">Parrocchia di …</div>
+        <div class="footer-contatti">Tel. … &nbsp;·&nbsp; … &nbsp;·&nbsp; Via …, …</div>
+    </footer>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchLatestImage();
-        });
+        // ══════════════════════════════════════════
+        //  CONFIGURAZIONE
+        // ══════════════════════════════════════════
+        const WORKER_URL = 'https://bacheca-worker.leogall2002.workers.dev/api/latest';
+        const R2_DOMAIN = 'https://r2.lmetal.dev';
+        // ══════════════════════════════════════════
 
-        async function fetchLatestImage() {
-            const container = document.getElementById('imageContainer');
-            const loader = document.getElementById('loader');
+        document.addEventListener('DOMContentLoaded', caricaAvviso);
 
+        async function caricaAvviso() {
             try {
-                // Endpoint API Cloudflare Worker
-                const response = await fetch('https://bacheca-worker.leogall2002.workers.dev/api/latest');
+                const res = await fetch(WORKER_URL);
+                if (!res.ok) throw new Error(`Errore server: ${res.status}`);
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                const dati = await res.json();
+                if (!dati || (Array.isArray(dati) && dati.length === 0) || Object.keys(dati).length === 0) {
+                    throw new Error('Nessun avviso disponibile al momento.');
                 }
 
-                const data = await response.json();
+                const item = Array.isArray(dati) ? dati[0] : dati;
+                const urlRaw = item.url || item.imageUrl || item.image || '';
+                const url = urlRaw.startsWith('http') ? urlRaw : `${R2_DOMAIN}/${urlRaw}`;
+                const titolo = item.titolo || item.title || 'Avvisi della Settimana';
+                const dataStr = item.data || item.date || item.createdAt || '';
 
-                // Estrai il primo elemento se è un array
-                const item = Array.isArray(data) ? data[0] : data;
+                if (!url) throw new Error('Nessuna immagine trovata.');
 
-                // Mappa le chiavi JSON per essere flessibili
-                const imageUrl = item?.url || item?.imageUrl || item?.image;
-                const imageTitle = item?.titolo || item?.title || item?.subject || "Ultimo aggiornamento";
+                mostraImmagine(url, titolo, dataStr);
 
-                if (imageUrl) {
-                    const img = new Image();
-                    img.src = imageUrl;
-                    img.alt = imageTitle;
-
-                    img.onload = () => {
-                        if (loader) loader.remove();
-                        img.classList.add('loaded');
-                        container.appendChild(img);
-                    };
-
-                    img.onerror = () => {
-                        throw new Error('Impossibile caricare il file immagine');
-                    };
-                } else {
-                    throw new Error('Nessun URL immagine fornito dal Worker');
-                }
-
-            } catch (error) {
-                console.error('Errore di connessione o fetch:', error);
-                if (loader) loader.remove();
-
-                // Mostra un feedback all'utente in caso di fallimento
-                container.innerHTML = `
-                    <div class="error-state">
-                        <p>Impossibile comunicare con il server.</p>
-                        <button class="retry-btn" onclick="retryFetch()">Riprova</button>
-                    </div>
-                `;
+            } catch (e) {
+                console.error(e);
+                mostraErrore(e.message);
             }
         }
 
-        function retryFetch() {
-            const container = document.getElementById('imageContainer');
-            container.innerHTML = '<div class="loader" id="loader"></div>';
-            fetchLatestImage();
+        function mostraImmagine(url, titolo, dataStr) {
+            const wrap = document.getElementById('contenitoreImmagine');
+            const btnScarica = document.getElementById('btnScarica');
+
+            const img = new Image();
+            img.src = url;
+            img.alt = titolo;
+
+            img.onload = () => {
+                wrap.innerHTML = '';
+                wrap.appendChild(img);
+                requestAnimationFrame(() => img.classList.add('visibile'));
+
+                document.getElementById('titoloPagina').textContent = titolo;
+                document.getElementById('sottotitoloPagina').textContent =
+                    dataStr ? formattaData(dataStr) : 'Ultimo aggiornamento disponibile';
+
+                btnScarica.href = url;
+                btnScarica.style.display = 'inline-flex';
+            };
+
+            img.onerror = () => mostraErrore('Impossibile caricare l\'immagine.');
+        }
+
+        function mostraErrore(msg) {
+            document.getElementById('contenitoreImmagine').innerHTML = `
+            <div class="errore-box">
+                <p>${msg}</p>
+                <button class="btn-outline" onclick="location.reload()">Riprova</button>
+            </div>
+        `;
+            document.getElementById('sottotitoloPagina').textContent = '';
+        }
+
+        function formattaData(s) {
+            try {
+                const d = new Date(s);
+                if (isNaN(d)) return s;
+                return d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            } catch { return s; }
         }
     </script>
+
 </body>
 
 </html>
