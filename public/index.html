@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimo Aggiornamento</title>
+    <!-- Font minimale sans-serif -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="index-page">
+
+    <!-- Menu minimalista -->
+    <nav>
+        <a href="index.html" class="active">Home</a>
+        <a href="bacheca.html">Archivio</a>
+    </nav>
+
+    <!-- Hero Section & Contenitore Immagine -->
+    <main>
+        <h1>Ultimo Aggiornamento</h1>
+
+        <div class="image-wrapper" id="imageContainer">
+            <div class="loader" id="loader"></div>
+        </div>
+    </main>
+
+    <!-- Logica JavaScript per Fetch -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchLatestImage();
+        });
+
+        async function fetchLatestImage() {
+            const container = document.getElementById('imageContainer');
+            const loader = document.getElementById('loader');
+
+            try {
+                // Endpoint API Cloudflare Worker
+                const response = await fetch('https://bacheca-worker.leogall2002.workers.dev/api/latest');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Estrai il primo elemento se è un array
+                const item = Array.isArray(data) ? data[0] : data;
+
+                // Mappa le chiavi JSON per essere flessibili
+                const imageUrl = item?.url || item?.imageUrl || item?.image;
+                const imageTitle = item?.titolo || item?.title || item?.subject || "Ultimo aggiornamento";
+
+                if (imageUrl) {
+                    const img = new Image();
+                    img.src = imageUrl;
+                    img.alt = imageTitle;
+
+                    img.onload = () => {
+                        if (loader) loader.remove();
+                        img.classList.add('loaded');
+                        container.appendChild(img);
+                    };
+
+                    img.onerror = () => {
+                        throw new Error('Impossibile caricare il file immagine');
+                    };
+                } else {
+                    throw new Error('Nessun URL immagine fornito dal Worker');
+                }
+
+            } catch (error) {
+                console.error('Errore di connessione o fetch:', error);
+                if (loader) loader.remove();
+
+                // Mostra un feedback all'utente in caso di fallimento
+                container.innerHTML = `
+                    <div class="error-state">
+                        <p>Impossibile comunicare con il server.</p>
+                        <button class="retry-btn" onclick="retryFetch()">Riprova</button>
+                    </div>
+                `;
+            }
+        }
+
+        function retryFetch() {
+            const container = document.getElementById('imageContainer');
+            container.innerHTML = '<div class="loader" id="loader"></div>';
+            fetchLatestImage();
+        }
+    </script>
+</body>
+
+</html>

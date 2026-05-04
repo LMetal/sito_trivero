@@ -1,0 +1,290 @@
+:root {
+    --bg-color: #ffffff;
+    --text-main: #111111;
+    --text-muted: #888888;
+    --text-light: #aaaaaa;
+    --accent: #007aff;
+
+    --shadow-soft: 0 16px 32px rgba(0, 0, 0, 0.04);
+    --shadow-float: 0 24px 48px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 32px 64px rgba(0, 0, 0, 0.12);
+
+    --transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body.bacheca-page {
+    padding-top: 6rem;
+}
+
+/* Navigazione */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: var(--transition);
+}
+
+nav a:hover,
+nav a.active {
+    color: var(--text-main);
+}
+
+/* Typography */
+h1 {
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    text-align: center;
+}
+
+/* Layout Principale - Index */
+.index-page main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8rem 2rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.index-page h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 4rem;
+}
+
+/* Layout Principale - Bacheca */
+.bacheca-page main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    width: 100%;
+}
+
+.bacheca-page header {
+    margin-bottom: 5rem;
+    text-align: center;
+}
+
+.bacheca-page h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+}
+
+/* Contenitore Immagine Fluttuante (Index) */
+.image-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 4/5;
+    border-radius: 4px;
+    background: #fafafa;
+    box-shadow: var(--shadow-float);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transform: translateZ(0);
+}
+
+.image-wrapper:hover {
+    transform: translateY(-16px) scale(1.01);
+    box-shadow: var(--shadow-hover);
+}
+
+.image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.image-wrapper img.loaded {
+    opacity: 1;
+}
+
+/* Layout Griglia (Bacheca) */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 4rem 3rem;
+    align-items: start;
+}
+
+/* Design della Card (Bacheca) */
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.card-image {
+    width: 100%;
+    aspect-ratio: 4/5;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #fafafa;
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition);
+    transform: translateZ(0);
+}
+
+.card:hover .card-image {
+    transform: translateY(-12px);
+    box-shadow: var(--shadow-hover);
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+.card:hover img {
+    transform: scale(1.02);
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.card-date {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    transition: color 0.3s ease;
+}
+
+.card:hover .card-title {
+    color: var(--accent);
+}
+
+/* Stati di Caricamento / Errore */
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 1px solid #eaeaea;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+}
+
+.image-wrapper .loader {
+    position: absolute;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-state,
+.state-container {
+    text-align: center;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-state {
+    padding: 2rem;
+}
+
+.error-state p {
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.state-container {
+    grid-column: 1 / -1;
+    min-height: 40vh;
+}
+
+.retry-btn {
+    background: none;
+    border: 1px solid var(--text-muted);
+    color: var(--text-main);
+    padding: 0.6rem 2rem;
+    font-family: inherit;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border-radius: 40px;
+    transition: var(--transition);
+}
+
+.state-container .retry-btn {
+    margin-top: 1.5rem;
+}
+
+.retry-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+
+/* Responsive - Colonna singola su Mobile */
+@media (max-width: 600px) {
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 5rem;
+    }
+
+    .bacheca-page main {
+        padding: 2rem 1.5rem;
+    }
+}
