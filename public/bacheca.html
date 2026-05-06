@@ -178,7 +178,19 @@
 
         function formattaData(s) {
             try {
-                const d = new Date(s);
+                let d = new Date(s);
+                if (s && typeof s === 'string' && s.match(/^\d{2}\/\d{2}\/\d{4}/)) {
+                    const datePart = s.substring(0, 10);
+                    const timePart = s.substring(11).trim();
+                    const [giorno, mese, anno] = datePart.split('/');
+                    
+                    if (timePart) {
+                        const [ore, minuti, secondi] = timePart.split(':');
+                        d = new Date(anno, mese - 1, giorno, ore || 0, minuti || 0, secondi || 0);
+                    } else {
+                        d = new Date(anno, mese - 1, giorno);
+                    }
+                }
                 if (isNaN(d)) return s;
                 return d.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
             } catch { return s; }
