@@ -412,8 +412,18 @@ main {
     border: 1px solid var(--bordo);
     border-radius: 4px;
     min-width: 70px;
-    height: 75px;
+    min-height: 85px;
+    padding: 0.5rem;
     flex-shrink: 0;
+}
+
+.evento-giorno-settimana {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--oro);
+    margin-bottom: 0.2rem;
 }
 
 .evento-giorno {

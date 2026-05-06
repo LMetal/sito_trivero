@@ -243,6 +243,7 @@
                 return `
                     <div class="evento-card">
                         <div class="evento-data-box">
+                            ${dataFormat.giornoStr ? `<span class="evento-giorno-settimana">${dataFormat.giornoStr}</span>` : ''}
                             <span class="evento-giorno">${dataFormat.giorno}</span>
                             <span class="evento-mese">${dataFormat.mese}</span>
                         </div>
@@ -261,17 +262,18 @@
         }
 
         function formattaDataEvento(dataStr) {
-            if (!dataStr) return { giorno: '-', mese: '-' };
+            if (!dataStr) return { giornoStr: '', giorno: '-', mese: '-' };
             const parti = dataStr.split('-');
             if (parti.length === 3) {
                 const date = new Date(`${parti[2]}-${parti[1]}-${parti[0]}`);
                 if (!isNaN(date)) {
+                    const giornoStr = date.toLocaleString('it-IT', { weekday: 'short' }).replace('.', '').toUpperCase();
                     const giorno = date.getDate();
                     const mese = date.toLocaleString('it-IT', { month: 'short' }).replace('.', '').toUpperCase();
-                    return { giorno, mese };
+                    return { giornoStr, giorno, mese };
                 }
             }
-            return { giorno: dataStr, mese: '' };
+            return { giornoStr: '', giorno: dataStr, mese: '' };
         }
     </script>
 
