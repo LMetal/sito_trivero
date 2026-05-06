@@ -325,6 +325,148 @@ main {
     color: var(--oro-chiaro);
 }
 
+/* ─── CALENDARIO EVENTI ─── */
+.calendario-section {
+    padding: 5rem 4.5rem;
+    border-top: 1px solid var(--bordo);
+    background: #141210;
+}
+
+.calendario-header {
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filtro-select {
+    appearance: none;
+    background: #141210 url("data:image/svg+xml;charset=US-ASCII,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%23B8862A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 1rem center;
+    background-size: 1.2rem;
+    border: 1px solid var(--bordo);
+    color: var(--bianco);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 0.75rem 2.5rem 0.75rem 1.25rem;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.filtro-select:focus, .filtro-select:hover {
+    outline: none;
+    border-color: var(--oro);
+    background-color: #1a1815;
+}
+
+.filtro-select option {
+    background: #141210;
+    color: var(--bianco);
+}
+
+.calendario-titolo {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--bianco);
+}
+
+.calendario-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.vuoto-testo {
+    color: var(--grigio);
+    font-size: 1rem;
+    font-weight: 300;
+}
+
+.evento-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(184, 134, 42, 0.1);
+    border-radius: 6px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.evento-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--bordo);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.evento-data-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(184, 134, 42, 0.08);
+    border: 1px solid var(--bordo);
+    border-radius: 4px;
+    min-width: 70px;
+    height: 75px;
+    flex-shrink: 0;
+}
+
+.evento-giorno {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--oro-chiaro);
+}
+
+.evento-mese {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--oro);
+    margin-top: 0.25rem;
+}
+
+.evento-dettagli {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.evento-nome {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--bianco);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.evento-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    row-gap: 0.5rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    color: var(--grigio);
+}
+
+.meta-item svg {
+    opacity: 0.7;
+}
+
 /* ─── BACHECA ─── */
 .bacheca-header {
     padding: 5rem 4.5rem 3.5rem;
@@ -609,6 +751,10 @@ main {
         height: auto;
     }
 
+    .calendario-section {
+        padding: 3.5rem 2.5rem;
+    }
+
     .bacheca-header {
         padding: 3rem 2.5rem 2.5rem;
     }
@@ -638,6 +784,14 @@ main {
 
     .hero-immagine-wrap {
         padding: 1rem; /* Meno padding sui telefoni per massimizzare lo spazio dell'immagine */
+    }
+
+    .calendario-section {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .calendario-lista {
+        grid-template-columns: 1fr;
     }
 
     .bacheca-header {

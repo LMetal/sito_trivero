@@ -57,6 +57,26 @@
             </div>
 
         </div>
+
+        <section class="calendario-section">
+            <div class="calendario-header">
+                <div class="calendario-titolo-wrap">
+                    <p class="kicker">Prossimamente</p>
+                    <h2 class="calendario-titolo">Calendario Eventi</h2>
+                </div>
+                <div class="calendario-filtri" id="calendarioFiltri" style="display: none;">
+                    <select id="filtroLuogo" class="filtro-select" aria-label="Filtra per luogo">
+                        <option value="tutti">Tutti i luoghi</option>
+                    </select>
+                </div>
+            </div>
+            <div class="calendario-lista" id="calendarioLista">
+                <div class="loader-area">
+                    <div class="spinner"></div>
+                    <span>Caricamento eventi…</span>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="site-footer">
@@ -69,10 +89,14 @@
         //  CONFIGURAZIONE
         // ══════════════════════════════════════════
         const WORKER_URL = 'https://bacheca-worker.leogall2002.workers.dev/api/latest';
+        const CALENDAR_URL = 'https://bacheca-worker.leogall2002.workers.dev/api/calendar';
         const R2_DOMAIN = 'https://r2.lmetal.dev';
         // ══════════════════════════════════════════
 
-        document.addEventListener('DOMContentLoaded', caricaAvviso);
+        document.addEventListener('DOMContentLoaded', () => {
+            caricaAvviso();
+            caricaCalendario();
+        });
 
         async function caricaAvviso() {
             try {
@@ -141,7 +165,7 @@
                     const datePart = s.substring(0, 10);
                     const timePart = s.substring(11).trim();
                     const [giorno, mese, anno] = datePart.split('/');
-                    
+
                     if (timePart) {
                         const [ore, minuti, secondi] = timePart.split(':');
                         d = new Date(anno, mese - 1, giorno, ore || 0, minuti || 0, secondi || 0);
@@ -152,6 +176,102 @@
                 if (isNaN(d)) return s;
                 return d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             } catch { return s; }
+        }
+
+        let tuttiEventi = [];
+
+        async function caricaCalendario() {
+            try {
+                const res = await fetch(CALENDAR_URL);
+                if (!res.ok) throw new Error(`Errore server: ${res.status}`);
+
+                tuttiEventi = await res.json();
+                popolaFiltri(tuttiEventi);
+                mostraCalendario(tuttiEventi);
+            } catch (e) {
+                console.error('Errore calendario:', e);
+                document.getElementById('calendarioLista').innerHTML = `
+                    <div class="errore-box" style="margin: 0 auto; padding: 2rem 0;">
+                        <p>Impossibile caricare gli eventi al momento.</p>
+                        <button class="btn-outline" onclick="caricaCalendario()">Riprova</button>
+                    </div>`;
+            }
+        }
+
+        function popolaFiltri(eventi) {
+            const select = document.getElementById('filtroLuogo');
+            const filtriContainer = document.getElementById('calendarioFiltri');
+
+            if (!eventi || eventi.length === 0) return;
+
+            const luoghi = [...new Set(eventi.map(e => e.luogo).filter(l => l && l.trim() !== ''))].sort();
+
+            if (luoghi.length > 0) {
+                select.innerHTML = '<option value="tutti">Tutti i luoghi</option>';
+                luoghi.forEach(luogo => {
+                    const opt = document.createElement('option');
+                    opt.value = luogo;
+                    opt.textContent = luogo;
+                    select.appendChild(opt);
+                });
+
+                filtriContainer.style.display = 'block';
+
+                select.onchange = (e) => {
+                    const selezionato = e.target.value;
+                    if (selezionato === 'tutti') {
+                        mostraCalendario(tuttiEventi);
+                    } else {
+                        const filtrati = tuttiEventi.filter(ev => ev.luogo === selezionato);
+                        mostraCalendario(filtrati);
+                    }
+                };
+            }
+        }
+
+        function mostraCalendario(eventi) {
+            const container = document.getElementById('calendarioLista');
+            if (!eventi || eventi.length === 0) {
+                container.innerHTML = '<p class="vuoto-testo">Nessun evento in programma.</p>';
+                return;
+            }
+
+            const html = eventi.map(evento => {
+                const dataFormat = formattaDataEvento(evento.data);
+                const ora = evento.ora_inizio ? `${evento.ora_inizio}${evento.ora_fine ? ' - ' + evento.ora_fine : ''}` : '';
+
+                return `
+                    <div class="evento-card">
+                        <div class="evento-data-box">
+                            <span class="evento-giorno">${dataFormat.giorno}</span>
+                            <span class="evento-mese">${dataFormat.mese}</span>
+                        </div>
+                        <div class="evento-dettagli">
+                            <h3 class="evento-nome">${evento.titolo}</h3>
+                            <div class="evento-meta">
+                                ${ora ? `<span class="meta-item"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${ora}</span>` : ''}
+                                ${evento.luogo ? `<span class="meta-item"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${evento.luogo}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function formattaDataEvento(dataStr) {
+            if (!dataStr) return { giorno: '-', mese: '-' };
+            const parti = dataStr.split('-');
+            if (parti.length === 3) {
+                const date = new Date(`${parti[2]}-${parti[1]}-${parti[0]}`);
+                if (!isNaN(date)) {
+                    const giorno = date.getDate();
+                    const mese = date.toLocaleString('it-IT', { month: 'short' }).replace('.', '').toUpperCase();
+                    return { giorno, mese };
+                }
+            }
+            return { giorno: dataStr, mese: '' };
         }
     </script>
 
